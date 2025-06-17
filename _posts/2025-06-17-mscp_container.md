@@ -116,10 +116,32 @@ The `-it` flags tells `container` to run an interactive tty, which brings you to
 You can now run any of the MSCP scripts from this command line.
 
 ```shell
-/mscp # script/generate_baseline.py -l
-
+/mscp # ./scripts/generate_baseline.py -l
+800-171
+800-53r4_high
+800-53r4_low
+800-53r4_moderate
+800-53r5_high
+800-53r5_low
+800-53r5_moderate
+800-53r5_privacy
+all_rules
+arm64
+cis_lvl1
+cis_lvl2
+cisv8
+cmmc_lvl1
 ...
 
+```
+
+```shell
+/mscp # ./scripts/generate_guidance.py baselines/800-53r5_moderate.yaml
+Profile YAML: baselines/800-53r5_moderate.yaml
+Output path: /mscp/build/800-53r5_moderate/800-53r5_moderate.adoc
+Generating HTML file from AsciiDoc...
+Generating PDF file from AsciiDoc...
+/mscp #
 ```
 
 To exit the `mscp` shell, just type `exit` at the command prompt.
