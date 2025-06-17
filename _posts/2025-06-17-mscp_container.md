@@ -3,7 +3,6 @@ layout: post
 title: "Using Containers to run MSCP"
 date: 2025-06-17 00:00:00
 published: true
-hidden: true
 categories: [MSCP]
 tags: [mscp, docker, container]
 ---
@@ -156,9 +155,9 @@ Generating PDF file from AsciiDoc...
 
 To exit the `mscp` shell, just type `exit` at the command prompt.
 
-## Building compliance documents and saving them outside of the container
+## Saving generated documents outside of the container
 
-Once a container is created, the contents typically remain as-is and data that gets modified while inside the container will be erased when the container stops running. So how to we keep our generated compliance documents? When you run `generate_guidance.py` all of the output is sent to the `./build` folder, which resided inside the container and will be lost when exiting.
+Once a container is created, the contents typically remain as-is and data that gets modified while inside the container will be erased when the container stops running. So how to we keep our generated compliance documents? When you run `generate_guidance.py` all of the output is sent to the `./build` folder, which resides inside the container and will be lost when exiting.
 
 With the `--volume` option of `container run`, you can share data between the host system and one or more containers, and you can persist data across multiple container runs. The volume option allows you to mount a folder on your host to a filesystem path in the container.
 
