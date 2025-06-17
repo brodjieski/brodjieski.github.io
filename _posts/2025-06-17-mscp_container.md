@@ -31,6 +31,8 @@ container system start
 
 container run -it ghcr.io/brodjieski/mscp:latest
 ```
+{: .nolineno }
+
 For those who want to see the process in more detail, keep reading.
 
 ## Building the MSCP container
@@ -43,6 +45,8 @@ Clone the macOS Security Compliance Project from NIST's GitHub page to your Desk
 ```shell
 git clone https://github.com/usnistgov/macos_security ~/Desktop/
 ```
+{: .nolineno }
+
 >`git` requires the Xcode Command Line Tools
 {: .prompt-info }
 
@@ -88,6 +92,7 @@ In order for `container` to manage and interact with images and containers, the 
 ```shell
 container system start
 ```
+{: .nolineno }
 
 The first time you start the container system, it will install a base container filesystem and prompt you to install a default kernel. It provides a recommended default kernel for you to accept. 
 
@@ -96,6 +101,7 @@ Once the system has been started, you can now build the container from the `Dock
 ```shell
 container build -f ~/Desktop/macos_security/Dockerfile -t mscp ~/Desktop/macos_security/
 ```
+{: .nolineno }
 
 Voila! You have successfully built an MSCP container tagged `mscp:latest` that contains everything needed to build compliance documents from MSCP.
 
@@ -106,12 +112,14 @@ Now that we have the container built, we can run the image with an interactive t
 ```shell
 container run -it mscp:latest
 ```
+{: .nolineno }
 
 The `-it` flags tells `container` to run an interactive tty, which brings you to the shell within the container. You will notice that your command line prompt now reads:
 
 ```shell
 /mscp # 
 ```
+{: .nolineno }
 
 You can now run any of the MSCP scripts from this command line.
 
@@ -134,6 +142,7 @@ cmmc_lvl1
 ...
 
 ```
+{: .nolineno }
 
 ```shell
 /mscp # ./scripts/generate_guidance.py baselines/800-53r5_moderate.yaml
@@ -143,6 +152,7 @@ Generating HTML file from AsciiDoc...
 Generating PDF file from AsciiDoc...
 /mscp #
 ```
+{: .nolineno }
 
 To exit the `mscp` shell, just type `exit` at the command prompt.
 
@@ -155,9 +165,14 @@ With the `--volume` option of `container run`, you can share data between the ho
 To share the MSCP `./build` folder from the container with a `mscp` folder on your Desktop, run the following command:
 
 ```shell
+# create host folder if needed
+mkdir -p ~/Desktop/mscp
+
 container run -it --volume ~/Desktop/mscp:/mscp/build mscp:latest
 ```
->The host folder `~/Desktop/mscp` must exist
+{: .nolineno }
+
+>The folder used in the `--volume` command must exist on the host.
 {: .prompt-warning }
 
 Now when you run any of the generate scripts from within the container, the resulting files will be made available on your Desktop.
@@ -167,6 +182,7 @@ You can do multiple volumes as well. Let's say you also want to share your `cust
 ```shell
 container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom mscp:latest
 ```
+{: .nolineno }
 
 Now any customizations made will be persistant across container runs.
 
@@ -177,18 +193,21 @@ For those who don't want to go through all of the process of building and mainta
 ```shell
 container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom ghcr.io/brodjieski/mscp:latest
 ```
+{: .nolineno }
 
 Podman also works
 
 ```shell
 podman run -it --volume /Users/<username>/Desktop/mscp:/mscp/build --volume /Users/<username>/Desktop/mscp/custom:/mscp/custom ghcr.io/brodjieski/mscp:latest
 ```
+{: .nolineno }
 
 Using Docker has a similar command, although it requires full path names and commas in the `--volume` command
 
 ```shell
 docker run -it --volume /Users/<username>/Desktop/mscp,/mscp/build --volume /Users/<username>/Desktop/mscp/custom,/mscp/custom ghcr.io/brodjieski/mscp:latest
 ```
+{: .nolineno }
 
 # In Conclusion
 Containers are a great way to deploy applications and solutions that can run natively in a Linux environment to include all of the required dependencies and software needed to use the application as expected. This use case is an example of how MSCP can be used on nearly any platform that can run containers... so now even your Windows admins have a means to generate macOS compliance documentation!
