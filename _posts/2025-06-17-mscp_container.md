@@ -9,7 +9,7 @@ tags: [mscp, docker, container]
 
 # macOS and Containers
 
-Following the announcement of macOS 26 at WWDC this year, a friend shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
+Following the announcement of macOS 26 at WWDC this year, my friend @golby shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
 
 One of first things I thought about is how can we leverage this to make running the macOS Security Compliance Project (MSCP) even easier for Mac admins who want to build their compliance using the command line. 
 
