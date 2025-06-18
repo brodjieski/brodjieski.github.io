@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "Using Containers to run MSCP"
+title: "Using Containers to Run MSCP"
 date: 2025-06-17 00:00:00
 published: true
 categories: [MSCP]
@@ -9,17 +9,17 @@ tags: [mscp, docker, container]
 
 # macOS and Containers
 
-Following the announcment of macOS 26 at WWDC this year, a friend and colleague shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
+Following the announcement of macOS 26 at WWDC this year, a friend shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
 
 One of first things I thought about is how can we leverage this to make running the macOS Security Compliance Project (MSCP) even easier for Mac admins who want to build their compliance using the command line. 
 
 One challenge of the MSCP has always been the dependencies required to run the scripts in the project. macOS does not include everything that is needed for the project. With `python` and `ruby` being two of the core components. The project has tried to leverage the pieces that Apple includes in either the shipped OS, or by way of the Xcode Command Line Tools, which give admins tools like `git` and `python`. The issue is that the tools that Apple provides are not always up to date. For example, `ruby` is included in macOS build, but is running version 2.6.10p210, which was released April 12... of 2022! While these versions have been functional for us over the years, we wanted to be able to modernize some of our tools which meant we need to be running newer versions of them.
 
-One approach is that we provide the instructions to download and install all of the tools needed to run the project. While this is fine and most admins are fully capable of getting their environment setup, what if there was an easier way for us to have everything we needed with much less overhead. Something were all of the dependencies were included in a easy to deploy package... a container of sorts.
+One approach is that we provide the instructions to download and install all of the tools needed to run the project. While this is fine and most admins are fully capable of getting their environment setup, what if there was an easier way for us to have everything we needed with much less overhead. Something where all of the dependencies were included in a easy to deploy package... a container of sorts.
 
-Containers are certainly not a new concept. Services like Docker and Podman have been available for quite some time on macOS. With macOS 26 Beta, Apple has brought the concept a bit closer to home. Let's see how we can build an MSCP container to generate some compliance documentation.
+Containers are certainly not a new concept. Services like Docker and Podman have been available for quite some time on macOS. With macOS 26 Beta, Apple has brought the concept a bit closer to home. Let's see how we can build an MSCP container to generate compliance documentation.
 
->While all of this was made available after WWDC and the announcment of macOS Tahoe, everything here, including the `container` application was tested and does work on macOS Sequoia. This does not require running macOS 26 Beta. It does require to be run directly on an Apple Silicon system and cannot be run in a virtual machine (VM).
+>While all of this was made available after WWDC and the announcment of macOS Tahoe, everything here, including the `container` tool was tested and works on macOS Sequoia, without needing to install macOS 26 Beta. It does require to be run directly on an Apple Silicon system and cannot be run in a virtual machine (VM).
 {: .prompt-info }
 
 ## TL;DR
@@ -93,7 +93,7 @@ container system start
 ```
 {: .nolineno }
 
-The first time you start the container system, it will install a base container filesystem and prompt you to install a default kernel. It provides a recommended default kernel for you to accept. 
+The first time you start the container system, it will install a base container filesystem and prompt you to install a default kernel. The process suggests a recommended default kernel that you can use. 
 
 Once the system has been started, you can now build the container from the `Dockerfile`.
 
@@ -102,7 +102,7 @@ container build -f ~/Desktop/macos_security/Dockerfile -t mscp ~/Desktop/macos_s
 ```
 {: .nolineno }
 
-Voila! You have successfully built an MSCP container tagged `mscp:latest` that contains everything needed to build compliance documents from MSCP.
+That's it! You have successfully built an MSCP container tagged `mscp:latest` that contains everything needed to build compliance documents from MSCP.
 
 ## Using the MSCP container
 
@@ -183,7 +183,7 @@ container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/cu
 ```
 {: .nolineno }
 
-Now any customizations made will be persistant across container runs.
+Now any customizations made will be persistent across container runs.
 
 ## Using an hosted container
 
@@ -209,4 +209,4 @@ docker run -it --volume /Users/<username>/Desktop/mscp,/mscp/build --volume /Use
 {: .nolineno }
 
 # In Conclusion
-Containers are a great way to deploy applications and solutions that can run natively in a Linux environment to include all of the required dependencies and software needed to use the application as expected. This use case is an example of how MSCP can be used on nearly any platform that can run containers... so now even your Windows admins have a means to generate macOS compliance documentation!
+Containers are a great way to deploy applications and solutions that can run natively in a Linux environment to include all of the required dependencies and software needed to use the application as intended. This example illustrates how MSCP can be used on nearly any platform that can run containers... so now even your Windows admins have a means to generate macOS compliance documentation!
