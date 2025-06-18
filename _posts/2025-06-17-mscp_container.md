@@ -19,7 +19,7 @@ One approach is that we provide the instructions to download and install all of 
 
 Containers are certainly not a new concept. Services like Docker and Podman have been available for quite some time on macOS. With macOS 26 Beta, Apple has brought the concept a bit closer to home. Let's see how we can build an MSCP container to generate compliance documentation.
 
->While all of this was made available after WWDC and the announcment of macOS Tahoe, everything here, including the `container` tool was tested and works on macOS Sequoia, without needing to install macOS 26 Beta. It does require to be run directly on an Apple Silicon system and cannot be run in a virtual machine (VM).
+>While all of this was made available after WWDC and the announcment of macOS Tahoe, the `container` tool will let you run containers on macOS Sequoia, but building them may have issues. It does require to be run directly on an Apple Silicon system and cannot be run in a virtual machine (VM).
 {: .prompt-info }
 
 ## TL;DR
