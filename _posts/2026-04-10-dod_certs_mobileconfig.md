@@ -2,7 +2,7 @@
 layout: post
 title: "Deploying DoD PKI Certificates to Managed Macs"
 categories: [SCRIPTS]
-tags: [pki, certificates, mobileconfig, mdm, dod]
+tags: [pki, certificates, mobileconfig, mdm]
 ---
 
 # Deploying DoD PKI Certificates to Managed Macs
@@ -15,32 +15,30 @@ A better approach for managed environments is to deploy the certificates as a `.
 
 ## The Script
 
-[`dod_certs_to_mobileconfig.py`](https://github.com/brodjieski/macos/tree/main/dod_certs_mobileconfig) is a Python 3 script that automates the entire process:
+[`dod_certs_to_mobileconfig.py`](https://github.com/brodjieski/macos/tree/main/dod_certs_mobileconfig) is a Python script that automates the entire process:
 
 1. Connects to the DoD PKE library and downloads the latest PKI certificate bundle
 2. Extracts and converts the P7B certificate files from DER to PEM format using `openssl`
 3. Splits the bundle into individual certificates
-4. Classifies each certificate as a root CA or intermediate CA by comparing its issuer and subject fields
+4. Determines if each certificate is a root CA or intermediate CA
 5. Generates a fully formed `.mobileconfig` profile containing all certificates, ready for MDM deployment
 
 ## Prerequisites
 
 The script requires:
 
-- **Python 3** — available via Xcode Command Line Tools or [python.org](https://www.python.org)
-- **OpenSSL** — available via Homebrew (`brew install openssl`) or Xcode Command Line Tools
+- **Python** — available via Xcode Command Line Tools or [python.org](https://www.python.org)
 
-You can verify both are present:
+You can verify that python is present:
 
 ```shell
 python3 --version
-openssl version
 ```
 {: .nolineno }
 
 ## Basic Usage
 
-Clone or download the script from GitHub, then run it from your terminal:
+Clone or download the script from [GitHub](https://github.com/brodjieski/macos/tree/main/dod_certs_mobileconfig), then run it from your terminal:
 
 ```shell
 python3 dod_certs_to_mobileconfig.py
