@@ -2,6 +2,7 @@
 layout: post
 title: "Using Containers to Run MSCP"
 date: 2025-06-17 00:00:00
+last_modified_at: 2026-04-10 00:00:00
 published: true
 categories: [MSCP]
 tags: [mscp, docker, container]
@@ -9,7 +10,7 @@ tags: [mscp, docker, container]
 
 # macOS and Containers
 
-Following the announcement of macOS 26 at WWDC this year, my friend @golby shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
+Following the announcement of macOS 26 at WWDC last year, my friend @golby shared a link to a WWDC session on Containerization, which immediately caught my attention. During that session, we were introduced to a project from Apple that leveraged some new features in macOS 26 Beta. From the github page, [container](https://github.com/apple/container) is a tool that you can use to create and run Linux containers as lightweight virtual machines on your Mac. It's written in Swift, and optimized for Apple silicon. 
 
 One of first things I thought about is how can we leverage this to make running the macOS Security Compliance Project (MSCP) even easier for Mac admins who want to build their compliance using the command line. 
 
@@ -28,7 +29,7 @@ Download and install the latest signed installer package for `container` from Ap
 ```shell
 container system start
 
-container run -it ghcr.io/brodjieski/mscp:latest
+container run -it ghcr.io/usnistgov/mscp_2.0:latest
 ```
 {: .nolineno }
 
@@ -39,18 +40,10 @@ There are just a couple of steps needed to create a Linux container running the 
 
 Download and install the latest signed installer package for `container` from Apple's [GitHub release page](https://github.com/apple/container/releases). 
 
-Clone the macOS Security Compliance Project from NIST's GitHub page to your Desktop folder. 
-
-```shell
-git clone https://github.com/usnistgov/macos_security ~/Desktop/
-```
-{: .nolineno }
-
->`git` requires the Xcode Command Line Tools
+>Updated the container build process so that the `git clone` command is part of the `Dockerfile` and will happen during the container image creation.
 {: .prompt-info }
 
-
-Create a `Dockerfile` file and place it in `~/Desktop/macos_security` with the following contents
+Create a `Dockerfile` file and place it somewhere you can easily reference, like the `~/Desktop/` folder, with the following contents
 
 ```
 FROM alpine:latest
@@ -62,21 +55,38 @@ RUN apk update && apk add --no-cache \
   git \
   py3-pip \
   ruby-dev \
-  build-base
+  build-base \
+  git 
+
+RUN apk add --no-cache --virtual .build-deps \
+    musl-dev \
+    linux-headers \
+    g++ \
+    gcc \
+    zlib-dev \
+    make \
+    python3-dev \
+    jpeg-dev \
+    freetype-dev \
+    libpng-dev \
+    openblas-dev
 
 # Set working directory
 WORKDIR /mscp
 
+# Copy MSCP code
+RUN git clone --single-branch -b dev_2.0 https://github.com/usnistgov/macos_security /mscp 
+
 # Install Python dependencies
-COPY requirements.txt .
 RUN pip install --break-system-packages --no-cache-dir -r requirements.txt
 
 # Install Ruby dependencies
-COPY Gemfile ./
+#COPY Gemfile ./
 RUN gem install bundler && bundle install
+RUN bundle add base64
 
-# Copy MSCP code
-COPY . .
+# Clean up build dependencies
+RUN apk del .build-deps
 
 # Run a shell when container starts
 CMD ["sh"]
@@ -98,18 +108,18 @@ The first time you start the container system, it will install a base container 
 Once the system has been started, you can now build the container from the `Dockerfile`.
 
 ```shell
-container build -f ~/Desktop/macos_security/Dockerfile -t mscp ~/Desktop/macos_security/
+container build -f ~/Desktop/Dockerfile -t mscp_2.0:latest
 ```
 {: .nolineno }
 
-That's it! You have successfully built an MSCP container tagged `mscp:latest` that contains everything needed to build compliance documents from MSCP.
+That's it! You have successfully built an MSCP container tagged `mscp_2.0:latest` that contains everything needed to build compliance documents from MSCP.
 
 ## Using the MSCP container
 
 Now that we have the container built, we can run the image with an interactive terminal. This will give us command line access to everything we need in the project.
 
 ```shell
-container run -it mscp:latest
+container run -it mscp_2.0:latest
 ```
 {: .nolineno }
 
@@ -167,7 +177,7 @@ To share the MSCP `./build` folder from the container with a `mscp` folder on yo
 # create host folder if needed
 mkdir -p ~/Desktop/mscp
 
-container run -it --volume ~/Desktop/mscp:/mscp/build mscp:latest
+container run -it --volume ~/Desktop/mscp:/mscp/build mscp_2.0:latest
 ```
 {: .nolineno }
 
@@ -179,7 +189,7 @@ Now when you run any of the generate scripts from within the container, the resu
 You can do multiple volumes as well. Let's say you also want to share your `custom` items used by the project:
 
 ```shell
-container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom mscp:latest
+container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom mscp_2.0:latest
 ```
 {: .nolineno }
 
@@ -189,22 +199,25 @@ Now any customizations made will be persistent across container runs.
 
 For those who don't want to go through all of the process of building and maintaining their own container, you can always run a container that has been built and hosted just like any Docker container. An example can be found in my GitHub packages, and can be kicked off by telling `container` to use a hosted container, rather than a local.
 
+>As part of the 2.0 efforts for MSCP, NIST now hosts the container on in their repository.
+{: .prompt-info }
+
 ```shell
-container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom ghcr.io/brodjieski/mscp:latest
+container run -it --volume ~/Desktop/mscp:/mscp/build --volume ~/Desktop/mscp/custom:/mscp/custom ghcr.io/usnistgov/mscp_2.0:latest
 ```
 {: .nolineno }
 
 Podman also works
 
 ```shell
-podman run -it --volume /Users/<username>/Desktop/mscp:/mscp/build --volume /Users/<username>/Desktop/mscp/custom:/mscp/custom ghcr.io/brodjieski/mscp:latest
+podman run -it --volume /Users/<username>/Desktop/mscp:/mscp/build --volume /Users/<username>/Desktop/mscp/custom:/mscp/custom ghcr.io/usnistgov/mscp_2.0:latest
 ```
 {: .nolineno }
 
 Using Docker has a similar command, although it requires full path names and commas in the `--volume` command
 
 ```shell
-docker run -it --volume /Users/<username>/Desktop/mscp,/mscp/build --volume /Users/<username>/Desktop/mscp/custom,/mscp/custom ghcr.io/brodjieski/mscp:latest
+docker run -it --volume /Users/<username>/Desktop/mscp,/mscp/build --volume /Users/<username>/Desktop/mscp/custom,/mscp/custom ghcr.io/usnistgov/mscp_2.0:latest
 ```
 {: .nolineno }
 
